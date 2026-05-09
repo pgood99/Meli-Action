@@ -68,7 +68,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg python3 python3-pip zip
 
-          pip3 install --quiet spotdl yt-dlp
+          pip3 install --quiet -U spotdl yt-dlp
 
       - name: Download Media
         id: download
@@ -86,13 +86,13 @@ jobs:
             echo "Spotify detected"
 
             if [[ "$FORMAT" == "flac" ]]; then
-              spotdl "$URL" \
-                --output-format flac \
+              spotdl download "$URL" \
+                --format flac \
                 --bitrate disable \
                 --output "release_files/{title}.{output-ext}"
             else
-              spotdl "$URL" \
-                --output-format mp3 \
+              spotdl download "$URL" \
+                --format mp3 \
                 --bitrate "$QUALITY" \
                 --output "release_files/{title}.{output-ext}"
             fi
@@ -181,7 +181,7 @@ jobs:
         if: github.event.inputs.upload_method == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: media-${{ github.run_number }}
+          tag_name: ${{ github.event.inputs.release_tag != '' && github.event.inputs.release_tag || format('media-{0}', github.run_number) }}
           name: "Spotify and SoundCloud Download"
           body: |
             Spotify / SoundCloud Download
